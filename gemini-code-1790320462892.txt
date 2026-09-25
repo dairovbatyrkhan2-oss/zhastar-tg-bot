@@ -1,2 +1,97 @@
-aiogram>=3.0.0
-python-dotenv>=1.0.0
+Python
+import asyncio
+import logging
+import os
+import sys
+
+from aiogram import Bot, Dispatcher, F, types
+from aiogram.filters import CommandStart
+from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env (для локального запуска)
+load_dotenv()
+
+# Получаем токен из переменной окружения
+BOT_TOKEN = os.getenv("8386214516:AAEUUUMT3AXHeLPe1rsipAWmZ7zcNPgxFvM") or os.getenv("BOT_TOKEN")
+
+if not BOT_TOKEN:
+    sys.exit("Ошибка: Переменная окружения BOT_TOKEN не установлена!")
+
+dp = Dispatcher()
+
+# --- Клавиатура ---
+def get_main_keyboard() -> ReplyKeyboardMarkup:
+    kb = [
+        [KeyboardButton(text="О нас")],
+        [KeyboardButton(text="Направления")],
+        [KeyboardButton(text="Контакты")],
+    ]
+    return ReplyKeyboardMarkup(
+        keyboard=kb,
+        resize_keyboard=True,
+        input_field_placeholder="Выберите интересующий раздел..."
+    )
+
+# --- Обработчики команд и сообщений ---
+
+@dp.message(CommandStart())
+async def cmd_start(message: types.Message):
+    welcome_text = (
+        f"Приветствуем, {message.from_user.first_name}!\n\n"
+        "Добро пожаловать в бот **Молодежного ресурсного центра**!\n"
+        "Мы — единая точка входа для поддержки, информирования и развития молодежи.\n\n"
+        "Используйте меню ниже, чтобы узнать больше о нашей работе и возможностях."
+    )
+    await message.answer(
+        welcome_text,
+        reply_markup=get_main_keyboard(),
+        parse_mode="Markdown"
+    )
+
+@dp.message(F.text == "О нас")
+async def about_us(message: types.Message):
+    text = (
+        "**🏢 О Молодежном ресурсном центре**\n\n"
+        "**Наша миссия:** Создание условий для всестороннего развития молодежи, "
+        "раскрытия ее потенциала и поддержки социально значимых инициатив.\n\n"
+        "**Чем мы занимаемся:**\n"
+        "• Консультирование и помощь молодежи (включая категорию NEET);\n"
+        "• Организация образовательных, спортивных и культурных мероприятий;\n"
+        "• Поддержка волонтерства и молодежных организаций;\n"
+        "• Содействие в трудоустройстве и профориентации."
+    )
+    await message.answer(text, parse_mode="Markdown")
+
+@dp.message(F.text == "Направления")
+async def directions(message: types.Message):
+    text = (
+        "**🎯 Ключевые направления работы:**\n\n"
+        "1. **Трудоустройство и поддержка NEET-молодежи:** Консультации, ярмарки вакансий, содействие в поиске работы.\n"
+        "2. **Развитие волонтерства:** Координация добровольческих проектов и инициатив.\n"
+        "3. **Образование и развитие:** Семинары, тренинги, базы грантовых программ и полезных госресурсов.\n"
+        "4. **Спорт и культура:** Спортивные турниры, творческие конкурсы и досуговые мероприятия.\n"
+        "5. **Консультационная поддержка:** Онлайн-запись к юристам и психологам."
+    )
+    await message.answer(text, parse_mode="Markdown")
+
+@dp.message(F.text == "Контакты")
+async def contacts(message: types.Message):
+    text = (
+        "**📞 Контактная информация:**\n\n"
+        "📍 **Адрес:** Уточняйте в вашем филиале МРЦ\n"
+        "⏰ **Режим работы:** Пн — Пт, 09:00 – 18:00\n"
+        "📧 **Email:** info@mrc.kz\n"
+        "📱 **Телефон:** +7 (700) 000-00-00\n\n"
+        "💬 **Форма обратной связи:** Пишите нам по любым вопросам — мы всегда на связи!"
+    )
+    await message.answer(text, parse_mode="Markdown")
+
+# --- Запуск бота ---
+async def main():
+    logging.basicConfig(level=logging.INFO)
+    bot = Bot(token=BOT_TOKEN)
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
