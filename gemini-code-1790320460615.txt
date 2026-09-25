@@ -1,0 +1,4 @@
+mrc_bot/
+├── main.py
+├── .env
+└── requirements.txt
